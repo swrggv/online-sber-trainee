@@ -5,32 +5,31 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        List<City> cityList = new ArrayList<>();
-        try(BufferedReader br = new BufferedReader(new FileReader("Задача ВС Java Сбер.csv", StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] items = line.split(";");
-                City city = new City();
-                city.setName(items[1]);
-                city.setRegion(items[2]);
-                city.setDistrict(items[3]);
-                city.setPopulation(Long.parseLong(items[4]));
-                if(items.length >= 6) {
-                    city.setFoundation(items[5]);
-                }
+        List<City> cityList = CityWorker.getCityList();
 
-                cityList.add(city);
+        //Пример полученного результата для сортировки по наименованию:
+        cityList.stream()
+                .sorted()
+                .forEach(System.out::println);
+
+        //Пример полученного результата для сортировки по двум
+        //полям справочника – федеральному округу и наименованию города:
+        Collections.sort(cityList, (o1, o2) -> {
+            int res = String.CASE_INSENSITIVE_ORDER.compare(o1.getDistrict(), o2.getDistrict());
+            if(res != 0) {
+                return res;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            return String.CASE_INSENSITIVE_ORDER.compare(o1.getName(), o2.getName());
+        });
 
-        for (int i = 0; i < cityList.size(); i++) {
-            System.out.println(cityList.get(i));
+        for(City city : cityList) {
+            System.out.println(city);
         }
     }
 }
